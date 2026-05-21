@@ -1,4 +1,5 @@
 import os
+import asyncio
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
 
@@ -7,9 +8,8 @@ load_dotenv()
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
 CHANNEL = os.getenv("CHANNEL")
-DISCUSSION_GROUP = os.getenv("DISCUSSION_GROUP")
+DISCUSSION_GROUP = int(os.getenv("DISCUSSION_GROUP"))
 
 RULES_TEXT = """📌 Discussion Rules:
 
@@ -19,29 +19,36 @@ RULES_TEXT = """📌 Discussion Rules:
 4. Violations will result in comment deletion or ban.
 """
 
-bot = TelegramClient("adoperatorrules_bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
+bot = TelegramClient("adoperatorrules_bot", API_ID, API_HASH)
 
 
 @bot.on(events.NewMessage(chats=CHANNEL))
 async def on_new_channel_post(event):
-    if not event.message:
-        return
+    print(f"NEW POST DETECTED: {event.message.id}")
 
     try:
+        await asyncio.sleep(3)
+
         discussion = await bot.get_discussion_message(CHANNEL, event.message.id)
+        print(f"DISCUSSION MESSAGE ID: {discussion.id}")
 
         await bot.send_message(
-            entity=DISCUSSION_GROUP,
-            message=RULES_TEXT,
+            DISCUSSION_GROUP,
+            RULES_TEXT,
             reply_to=discussion.id,
-            link_preview=False,
+            link_preview=False
         )
 
-        print(f"Rules comment added under post {event.message.id}")
+        print("RULES SENT SUCCESSFULLY")
 
     except Exception as e:
-        print(f"Failed to comment under post {event.message.id}: {e}")
+        print(f"ERROR: {repr(e)}")
 
 
-print("Bot is running...")
-bot.run_until_disconnected()
+async def main():
+    await bot.start(bot_token=BOT_TOKEN)
+    print("Bot is running...")
+    await bot.run_until_disconnected()
+
+
+bot.loop.run_until_complete(main())
