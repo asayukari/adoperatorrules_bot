@@ -27,15 +27,10 @@ async def on_new_channel_post(event):
     print(f"NEW POST DETECTED: {event.message.id}")
 
     try:
-        await asyncio.sleep(3)
-
-        discussion = await bot.get_discussion_message(CHANNEL, event.message.id)
-        print(f"DISCUSSION MESSAGE ID: {discussion.id}")
-
         await bot.send_message(
-            DISCUSSION_GROUP,
-            RULES_TEXT,
-            reply_to=discussion.id,
+            entity=CHANNEL,
+            message=RULES_TEXT,
+            comment_to=event.message.id,
             link_preview=False
         )
 
