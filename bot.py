@@ -43,3 +43,4 @@ async def on_new_channel_post(event):
 
 
 print("Bot is running...")
+bot.run_until_disconnected()
