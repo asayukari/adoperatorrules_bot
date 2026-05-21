@@ -24,22 +24,23 @@ bot = TelegramClient("adoperatorrules_bot", API_ID, API_HASH).start(bot_token=BO
 
 @bot.on(events.NewMessage(chats=CHANNEL))
 async def on_new_channel_post(event):
-    if not event.message or event.message.grouped_id:
+    if not event.message:
         return
 
-    post_id = event.message.id
-
     try:
+        discussion = await bot.get_discussion_message(CHANNEL, event.message.id)
+
         await bot.send_message(
             entity=DISCUSSION_GROUP,
             message=RULES_TEXT,
-            comment_to=post_id,
+            reply_to=discussion.id,
             link_preview=False,
         )
-        print(f"Rules comment added under post {post_id}")
+
+        print(f"Rules comment added under post {event.message.id}")
 
     except Exception as e:
-        print(f"Failed to comment under post {post_id}: {e}")
+        print(f"Failed to comment under post {event.message.id}: {e}")
 
 
 print("Bot is running...")
